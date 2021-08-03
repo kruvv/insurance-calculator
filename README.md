@@ -1,70 +1,33 @@
-# Getting Started with Create React App
+# Страховой калькулятор
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Необходимо написать калькулятор в виде Single Page Application, позволяющий клиенту подобрать и оформить оптимальный страховой полис. У каждого полиса задан месячный платеж (страховая премия), максимальный и минимальный срок действия полиса (в месяцах), сумма покрытия (страховая сумма), список рисков, название полиса, замкнутый слева полуинтервал допустимых значений индекса массы тела, минимальный и максимальный допустимый возраст застрахованного лица.
 
-## Available Scripts
+Клиент вводит данные на форме: вес, рост, дату рождения, пол. После ввода данных клиент нажимает кнопку «Рассчитать» и происходит валидация введенных параметров. Если параметры валидны, то клиенту подбираются полисы. При подборе учитывается индекс массы тела клиента и возраст клиента. Полис попадает в выборку, если рассчитанный для клиента индекс массы тела принадлежит замкнутому слева полуинтервалу допустимых значений индекса массы тела полиса,  а возраст клиент не менее минимального возраста и не более максимального возраста полиса. Если ни один полис не был подобран, то клиенту отображается ошибка “По введенным данным не подобрано ни одного полиса” (можно в виде сплывающего окна).
 
-In the project directory, you can run:
+В случае изменения введенных данных (вес, рост, дату рождения, пол) список подобранных полисов должен очищаться. Клиент может выбрать один полис для оформления. В случае выбора полиса показывается список рисков, которые данный полис покрывает. После этого клиент может выбрать желаемую длительность полиса в месяцах и дату начала действия страхового полиса.
 
-### `yarn start`
+После выбора валидной длительности и даты начала действия полиса происходит автоматический расчет полной страховой премии (полная стоимость страхового полиса), даты окончания действия полиса. Становится активна кнопка «Оформить полис». По нажатию на кнопку «Оформить полис» появляется всплывающее окно с текстом «Вы оформили страховой полис _НАЗВАНИЕ-ПОЛИСА_», где _НАЗВАНИЕ-ПОЛИСА_ - название оформленного полиса.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Выполнить задание необходимо с использованием библиотеки MOBX (https://mobx.js.org/react-integration.html) и библиотеки React. Запрещено использовать состояние (state) компонентов React.  Можно использовать любые UI библиотеки. Внешний вид приложения может не совпадать с макетом, однако должен реализовать выше описанный бизнес-процесс. Для макета использовалась UI библиотека grommet (https://v2.grommet.io/).
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Макет
 
-### `yarn test`
+![layout](/src/img/maket.png)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Таблица полисов
 
-### `yarn build`
+В данной таблице содержаться данные страховых полисов, доступных для оформления.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```plantuml
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+skinparam titleFontSize 16
+title
+|=Название |=Минимальный срок (в месяцах) |=Максимальный срок (в месяцах) |=Страховая премия за один месяц |=Страховая сумма |=Нижняя граница замкнутого слева полуинтервала значений индекса массы тела |=Верхняя граница замкнутого слева полуинтервала значений индекса массы тела |=Минимальный возраст |=Максимальный возраст |=Риски (массив через ;) |
+| Защита здоровья ПЛЮС | 12 | 24 | 2000 | 200000 | 18.0 | 25.0 | 18 | 65 | Смерть по любой причине; Инвалидность I, II, или II степени по любой причине |
+| Защита здоровья ПЛЮС | 12 | 24 | 2400 | 200000 | 25.0 | 35.0 | 18 | 65 | Смерть по любой причине; Инвалидность I, II, или II степени по любой причине |
+| Защита здоровья | 12 | 24 | 1000 | 100000 | 18.0 | 25.0 | 18 | 65 | Смерть в результате несчастного случая; Инвалидность I, II, или II в результате несчастного случая |
+| Защита здоровья | 12 | 24 | 1200 | 100000 | 25.0 | 35.0 | 18 | 65 | Смерть в результате несчастного случая; Инвалидность I, II, или II степени в результате несчастного случая |
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+end title
 
-### `yarn eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```
