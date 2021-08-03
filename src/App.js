@@ -1,25 +1,24 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import { grommet, Grommet } from "grommet";
+import { Favorite, ShareOption } from "grommet-icons";
+import  SimpleSelect  from "./components/simple/simple-select.component";
+import SimpleTextInput from "./components/simple/simple-text-input.component";
+import DateInputField from "./components/date/data-input.component";
+import BasicButton from "./components/buttons/simple-button";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Grommet theme={grommet}>
+      <h2>Введите параметры для подбора страховки</h2>
+      <SimpleTextInput title="Рост, см" />
+      <SimpleTextInput title="Вес, кг" />
+      <SimpleSelect title="Пол"  />
+      <DateInputField title="Дата рождения" />
+      <BasicButton title="Рассчитать" disabled={true}/>
+    </Grommet>
   );
 }
+
+
 
 export default App;
