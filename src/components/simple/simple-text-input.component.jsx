@@ -1,24 +1,29 @@
-import { Box, TextInput, Tip } from "grommet";
-import React from "react";
+import { Box, TextInput} from "grommet";
+import React, { useState, useEffect } from "react";
 
-const SimpleTextInput = ({ title }) => {
-  const [value, setValue] = React.useState("");
-  const [isValid, setIsValid] = React.useState("");
+const SimpleTextInput = ({ title, onChange, evalue }) => {
 
-  const handleValidation = () => {
-    if (value.length === 0) return null;
-    !isNaN(value) && !isNaN(parseFloat(value)) && value >= 50 && value <= 200
-      ? setIsValid("")
-      : setIsValid("notValid");
-  };
+  const [value, setValue] = useState(evalue === undefined ? "" : evalue);
+  const [isValid, setIsValid] = useState("");
 
-  const onChange = (event) => {
+  useEffect(() => {
+    setValue(evalue)
+  },[evalue])
+
+  // const handleValidation = () => {
+  //   if (value.length === 0) return null;
+  //   !isNaN(value) && !isNaN(parseFloat(value)) && value >= 50 && value <= 200
+  //     ? setIsValid("")
+  //     : setIsValid("notValid");
+  // };
+
+  const handleChange = (event) => {
     let number = event.target.value;
 
-    if (title === "Рост, см") {
       setValue(number);
-    } else if (title === "Вес, кг") {
-      setValue(number);
+
+    if (onChange) {
+      onChange(event, title, number);
     }
   };
 
@@ -31,14 +36,12 @@ const SimpleTextInput = ({ title }) => {
       <Box width="small">
         <TextInput
           value={value}
-          onChange={onChange}
+          onChange={handleChange}
           className={isValid}
-          onBlur={handleValidation}
+          // onBlur={handleValidation}
         />
       </Box>
-      {isValid === "notValid" && (
-       <p>Not Valid</p>
-      )}
+      {isValid === "notValid" && <p>Not Valid</p>}
     </Box>
   );
 };
