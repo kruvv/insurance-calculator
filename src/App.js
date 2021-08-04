@@ -19,6 +19,7 @@ import {
 import { useState } from "react";
 
 import { columns, DATA, options } from "./DATA";
+import { useEffect } from "react";
 
 function App() {
   const [selectData, setSelectData] = useState([]); // Подобранные полисы
@@ -26,8 +27,11 @@ function App() {
   const [select, setSelect] = useState([]); // Установка значения поля формы "Пол"
   const [selectItem, setSelectItem] = useState([]); // Выбор строки в таблице с подобранными полисами
   const [date, setDate] = useState("1980"); // Установка даты для календаря
+  const [dateStart, setDateStart] = useState(""); // Установка даты начала действия полиса
+  const [dateStop, setDateStop] = useState(""); // Установка даты окончания действия полиса
   const [open, setOpen] = useState(false); // Отображение таблицы подобранных полисов
   const [rangeInput, setRangeInput] = useState(12); // Изменение продолжительности действия полиса
+  const [sumPolicy, setSumPolicy] = useState(0);
 
   const handleSubmit = ({ birthday, sex, growth, weight }) => {
     // console.log("val: ", birthday, sex, growth, weight);
@@ -36,7 +40,7 @@ function App() {
 
     const nowYear = new Date().getFullYear();
     const clientYearOfBirth = new Date(birthday).getFullYear();
-    console.log(nowYear, clientYearOfBirth);
+    // console.log(nowYear, clientYearOfBirth);
     const age = nowYear - clientYearOfBirth;
     console.log(age);
 
@@ -59,7 +63,7 @@ function App() {
     );
     setSelectData(result);
 
-    console.log("#", isAge, isBodyMassIndex);
+    // console.log("#", isAge, isBodyMassIndex);
 
     if (isAge && isBodyMassIndex) {
       setOpen(true);
@@ -77,6 +81,32 @@ function App() {
     setSelect([]);
     setDate("1980");
     setOpen(false);
+  };
+
+  const handleCalculation = (val) => {
+    setDateStart(val);
+    const stop = new Date(val);
+    stop.setMonth(stop.getMonth() + parseInt(rangeInput));
+    setDateStop(stop);
+
+    const result = selectItem.map((item) =>
+      selectData.map((datum) =>
+        item === datum.name ? datum.monthly_insurance_premium : 0
+      )
+    );
+    const resultFlat = result.flat();
+    const sum =
+      resultFlat.length > 0
+        ? resultFlat.reduce((akk, current) => akk + current)
+        : 0;
+
+    setSumPolicy(sum);
+
+    console.log("sum: ", sum);
+  };
+
+  const getInsurancePolicy = () => {
+    alert(`Вы оформили страховой полис ${selectItem}`);
   };
 
   return (
@@ -131,18 +161,20 @@ function App() {
         </Form>
       </Box>
 
-      {open && (
+      {true && (
         <Box align="center" pad="medium">
           <Box align="center" pad="medium">
-            <DataTable
-              columns={columns}
-              data={selectData}
-              step={10}
-              select={selectItem}
-              onSelect={(w) => setSelectItem(w)}
-              background={["white", "light-2"]}
-              sortable
-            />
+            <Box margin="medium" width="large">
+              <DataTable
+                columns={columns}
+                data={selectData}
+                step={10}
+                select={selectItem}
+                onSelect={setSelectItem}
+                background={["white", "light-2"]}
+                sortable
+              />
+            </Box>
             {selectItem.length > 0 && (
               <Box
                 margin="medium"
@@ -157,7 +189,7 @@ function App() {
                 {selectItem.map((item) =>
                   selectData.map((datum) =>
                     item === datum.name ? (
-                      <Box key={datum.id} alignSelf="center">
+                      <Box key={datum.id} alignSelf="start">
                         {datum.risks}
                       </Box>
                     ) : null
@@ -177,6 +209,51 @@ function App() {
           </Box>
           <Box align="center" pad="xsmall">
             <Text>Полис длительностью {rangeInput} месяцев</Text>
+          </Box>
+          <Box
+            fill
+            align="center"
+            justify="center"
+            pad="large"
+            direction="row"
+            gap="large"
+          >
+            <Box width="medium" gap="" direction="row">
+              <Text tag="div">Дата начала</Text>
+              <DateInput
+                format="dd/mm/yyyy"
+                value={dateStart}
+                onChange={({ value }) => handleCalculation(value)}
+                calendarProps={{ size: "small" }}
+              />
+            </Box>
+            <Box width="medium" gap="medium" direction="row">
+              <Text tag="div">Дата окончания</Text>
+              <DateInput
+                format="dd/mm/yyyy"
+                value={dateStop}
+                onChange={() => {}}
+                calendarProps={{ size: "small" }}
+                disabled
+              />
+            </Box>
+          </Box>
+          <Box
+            width="large"
+            gap="large"
+            direction="row"
+            align="center"
+            justify="center"
+          >
+            <Text tag="div">Полная страховая премия: {sumPolicy}</Text>
+            {sumPolicy > 0 && (
+              <Button
+                type="button"
+                primary
+                label="Оформить полис"
+                onClick={getInsurancePolicy}
+              />
+            )}
           </Box>
         </Box>
       )}
