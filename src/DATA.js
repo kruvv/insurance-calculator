@@ -2,10 +2,10 @@ import React from "react";
 
 import { Box, Meter, Text, Tip } from "grommet";
 
-const amountFormatter = new Intl.NumberFormat("en-US", {
+const amountFormatter = new Intl.NumberFormat("ru-RU", {
   style: "currency",
   currency: "RUB",
-  minimumFractionDigits: 2,
+  minimumFractionDigits: 0,
 });
 
 export const columns = [
@@ -13,27 +13,27 @@ export const columns = [
     property: "name",
     header: <Text>Название полиса</Text>,
     primary: true,
-    footer: "Total",
+    // footer: "Total",
   },
   {
     property: "monthly_insurance_premium",
     header: "Страховая премия",
-    render: (datum) => amountFormatter.format(datum.monthly_insurance_premium),
+    render: (item) => amountFormatter.format(item.monthly_insurance_premium),
     align: 'end',
   },
   {
     property: "sum_insured",
     header: "Страховое покрытие",
-    render: (datum) => amountFormatter.format(datum.sum_insured),
+    render: (item) => amountFormatter.format(item.sum_insured),
     align: 'end',
-    aggregate: 'sum',
-    footer: { aggregate: true },
+    // aggregate: 'sum',
+    // footer: { aggregate: true },
   },
   // {
   //   property: 'date',
   //   header: 'Date',
-  //   render: (datum) =>
-  //     datum.date && new Date(datum.date).toLocaleDateString('en-US'),
+  //   render: (item) =>
+  //     item.date && new Date(item.date).toLocaleDateString('en-US'),
   //   align: 'end',
   // },
   // {
@@ -48,7 +48,7 @@ export const columns = [
   // {
   //   property: 'paid',
   //   header: 'Paid',
-  //   render: (datum) => amountFormatter.format(datum.paid / 100),
+  //   render: (item) => amountFormatter.format(item.paid / 100),
   //   align: 'end',
   //   aggregate: 'sum',
   //   footer: { aggregate: true },
@@ -57,6 +57,7 @@ export const columns = [
 
 export const DATA = [
   {
+    id: 1,
     name: "Защита здоровья ПЛЮС",
     min_time: 12,
     max_time: 24,
@@ -69,6 +70,7 @@ export const DATA = [
     risks: "Смерть по любой причине; Инвалидность I, II, или II степени по любой причине"
   },
   {
+    id: 2,
     name: "Защита здоровья ПЛЮС",
     min_time: 12,
     max_time: 24,
@@ -81,6 +83,7 @@ export const DATA = [
     risks: "Смерть по любой причине; Инвалидность I, II, или II степени по любой причине"
   },
   {
+    id: 3,
     name: "Защита здоровья",
     min_time: 12,
     max_time: 24,
@@ -93,6 +96,7 @@ export const DATA = [
     risks: "Смерть в результате несчастного случая; Инвалидность I, II, или II в результате несчастного случая"
   },
   {
+    id: 4,
     name: "Защита здоровья",
     min_time: 12,
     max_time: 24,
@@ -161,3 +165,8 @@ export const DATA = [
 //     paid: 2345,
 //   },
 ];
+
+
+export const options = ["Мужской", "Женский"];
+
+

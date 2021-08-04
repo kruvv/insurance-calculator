@@ -1,9 +1,8 @@
 
-h2 {
-  text-align: center;
+.risks {
+  background-color: rgb(241, 220, 228);
 }
 
-.notValid {
-  background-color: rgb(246, 68, 68) !important;
-  /* border: 2px solid rgb(241, 138, 138) !important; */
+.risks__title {
+  font-weight: 600;
 }
