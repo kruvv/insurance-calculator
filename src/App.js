@@ -14,41 +14,33 @@ import {
   Text,
   TextInput,
 } from "grommet";
-// import { Favorite, ShareOption } from "grommet-icons";
 
 import { useState } from "react";
 
 import { columns, DATA, options } from "./DATA";
-import { useEffect } from "react";
 
 function App() {
   const [selectData, setSelectData] = useState([]); // Подобранные полисы
   const [value, setValue] = useState({}); // Данные из формы
   const [select, setSelect] = useState([]); // Установка значения поля формы "Пол"
   const [selectItem, setSelectItem] = useState([]); // Выбор строки в таблице с подобранными полисами
-  const [date, setDate] = useState("1980"); // Установка даты для календаря
+  const [date, setDate] = useState("1980"); // Установка начальной даты для календаря
   const [dateStart, setDateStart] = useState(""); // Установка даты начала действия полиса
   const [dateStop, setDateStop] = useState(""); // Установка даты окончания действия полиса
   const [open, setOpen] = useState(false); // Отображение таблицы подобранных полисов
   const [rangeInput, setRangeInput] = useState(12); // Изменение продолжительности действия полиса
-  const [sumPolicy, setSumPolicy] = useState(0);
+  const [sumPolicy, setSumPolicy] = useState(0); // Итоговая сумма оформленных полисов
+  const [disabled, setDisabled] = useState(true); // Блокировка кнопки Оформить полис и ползунка интервала
 
   const handleSubmit = ({ birthday, sex, growth, weight }) => {
-    // console.log("val: ", birthday, sex, growth, weight);
-
     let isBodyMassIndex = false;
 
-    const nowYear = new Date().getFullYear();
-    const clientYearOfBirth = new Date(birthday).getFullYear();
-    // console.log(nowYear, clientYearOfBirth);
-    const age = nowYear - clientYearOfBirth;
-    console.log(age);
+    const fullAgeInYears =
+      new Date().getFullYear() - new Date(birthday).getFullYear();
 
-    let isAge = age >= 18 && age <= 65 ? true : false;
+    let isAge = fullAgeInYears >= 18 && fullAgeInYears <= 65 ? true : false;
 
-    const bodyMassIndex =
-      Math.round((weight / growth ** 2) * 10000 * 100) / 100;
-    console.log("bmi:", bodyMassIndex);
+    const bodyMassIndex = Math.round((weight / growth ** 2) * 1000000) / 100;
 
     if (bodyMassIndex >= 18.0 && bodyMassIndex < 25.0) {
       isBodyMassIndex = true;
@@ -56,14 +48,12 @@ function App() {
       isBodyMassIndex = true;
     }
 
-    let result = DATA.filter(
+    const result = DATA.filter(
       (item) =>
         item.min_body_mass_idx <= bodyMassIndex &&
         item.max_body_mass_idx >= bodyMassIndex
     );
     setSelectData(result);
-
-    // console.log("#", isAge, isBodyMassIndex);
 
     if (isAge && isBodyMassIndex) {
       setOpen(true);
@@ -73,7 +63,9 @@ function App() {
   };
 
   const handleChangeRangeInput = (event) => {
-    setRangeInput(event.target.value);
+    const range = event.target.value;
+    setRangeInput(range);
+    handleCalculation(dateStart, range);
   };
 
   const handleReset = () => {
@@ -83,11 +75,8 @@ function App() {
     setOpen(false);
   };
 
-  const handleCalculation = (val) => {
-    setDateStart(val);
-    const stop = new Date(val);
-    stop.setMonth(stop.getMonth() + parseInt(rangeInput));
-    setDateStop(stop);
+  const handleCalculation = (startDateInsurance, range) => {
+    handleValidateDate(startDateInsurance);
 
     const result = selectItem.map((item) =>
       selectData.map((datum) =>
@@ -97,16 +86,46 @@ function App() {
     const resultFlat = result.flat();
     const sum =
       resultFlat.length > 0
-        ? resultFlat.reduce((akk, current) => akk + current)
+        ? resultFlat.reduce((acc, current) => acc + current)
         : 0;
 
-    setSumPolicy(sum);
+    const costPolicy = Math.round((sum / 12) * range);
 
-    console.log("sum: ", sum);
+    setSumPolicy(costPolicy);
+
+    const disabled = sum > 0 ? false : true;
+    setDisabled(disabled);
+  };
+
+  const handleValidateDate = (validateDate) => {
+    const expectedDate = new Date(validateDate);
+    const dateNow = new Date();
+
+    if (expectedDate.getFullYear() < dateNow.getFullYear()) {
+      alert(
+        "Год начала действия страхового полиса не может быть меньше года расчетного дня."
+      );
+      setDateStart(dateNow.toISOString());
+    } else if (
+      expectedDate.getMonth() <= dateNow.getMonth() &&
+      expectedDate.getDay() < dateNow.getDay()
+    ) {
+      alert(
+        "Дата начала действия страхового полиса не может быть меньше даты расчетного дня."
+      );
+      setDateStart(dateNow.toISOString());
+    } else {
+      setDateStart(expectedDate.toISOString());
+    }
+
+    const stop = new Date(expectedDate);
+    stop.setMonth(stop.getMonth() + parseInt(rangeInput));
+    setDateStop(stop);
   };
 
   const getInsurancePolicy = () => {
-    alert(`Вы оформили страховой полис ${selectItem}`);
+    alert(`Вы оформили страховой полис:
+     ${selectItem}`);
   };
 
   return (
@@ -161,7 +180,7 @@ function App() {
         </Form>
       </Box>
 
-      {true && (
+      {open && (
         <Box align="center" pad="medium">
           <Box align="center" pad="medium">
             <Box margin="medium" width="large">
@@ -198,13 +217,14 @@ function App() {
               </Box>
             )}
           </Box>
-          <Box align="center" pad="small">
+          <Box align="center" pad="small" width="large">
             <RangeInput
               value={rangeInput}
               onChange={handleChangeRangeInput}
               step={1}
               min={12}
               max={24}
+              disabled={disabled}
             />
           </Box>
           <Box align="center" pad="xsmall">
@@ -223,7 +243,7 @@ function App() {
               <DateInput
                 format="dd/mm/yyyy"
                 value={dateStart}
-                onChange={({ value }) => handleCalculation(value)}
+                onChange={({ value }) => handleCalculation(value, rangeInput)}
                 calendarProps={{ size: "small" }}
               />
             </Box>
@@ -246,14 +266,13 @@ function App() {
             justify="center"
           >
             <Text tag="div">Полная страховая премия: {sumPolicy}</Text>
-            {sumPolicy > 0 && (
-              <Button
-                type="button"
-                primary
-                label="Оформить полис"
-                onClick={getInsurancePolicy}
-              />
-            )}
+            <Button
+              type="button"
+              primary
+              label="Оформить полис"
+              onClick={getInsurancePolicy}
+              disabled={disabled}
+            />
           </Box>
         </Box>
       )}
