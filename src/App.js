@@ -1,4 +1,4 @@
-import "./App.css";
+import "./App.scss";
 import {
   Box,
   Button,
@@ -15,118 +15,25 @@ import {
   TextInput,
 } from "grommet";
 
-import { useState } from "react";
-
-import { columns, DATA, options } from "./DATA";
+import store from "./store";
+import { observer } from "mobx-react";
 
 function App() {
-  const [selectData, setSelectData] = useState([]); // Подобранные полисы
-  const [value, setValue] = useState({}); // Данные из формы
-  const [select, setSelect] = useState([]); // Установка значения поля формы "Пол"
-  const [selectItem, setSelectItem] = useState([]); // Выбор строки в таблице с подобранными полисами
-  const [date, setDate] = useState("1980"); // Установка начальной даты для календаря
-  const [dateStart, setDateStart] = useState(""); // Установка даты начала действия полиса
-  const [dateStop, setDateStop] = useState(""); // Установка даты окончания действия полиса
-  const [open, setOpen] = useState(false); // Отображение таблицы подобранных полисов
-  const [rangeInput, setRangeInput] = useState(12); // Изменение продолжительности действия полиса
-  const [sumPolicy, setSumPolicy] = useState(0); // Итоговая сумма оформленных полисов
-  const [disabled, setDisabled] = useState(true); // Блокировка кнопки Оформить полис и ползунка интервала
-
-  const handleSubmit = ({ birthday, sex, growth, weight }) => {
-    let isBodyMassIndex = false;
-
-    const fullAgeInYears =
-      new Date().getFullYear() - new Date(birthday).getFullYear();
-
-    let isAge = fullAgeInYears >= 18 && fullAgeInYears <= 65 ? true : false;
-
-    const bodyMassIndex = Math.round((weight / growth ** 2) * 1000000) / 100;
-
-    if (bodyMassIndex >= 18.0 && bodyMassIndex < 25.0) {
-      isBodyMassIndex = true;
-    } else if (bodyMassIndex >= 25.0 && bodyMassIndex <= 35.0) {
-      isBodyMassIndex = true;
-    }
-
-    const result = DATA.filter(
-      (item) =>
-        item.min_body_mass_idx <= bodyMassIndex &&
-        item.max_body_mass_idx >= bodyMassIndex
-    );
-    setSelectData(result);
-
-    if (isAge && isBodyMassIndex) {
-      setOpen(true);
-    } else {
-      alert("По введенным данным не подобрано ни одного полиса");
-    }
-  };
-
-  const handleChangeRangeInput = (event) => {
-    const range = event.target.value;
-    setRangeInput(range);
-    handleCalculation(dateStart, range);
-  };
-
-  const handleReset = () => {
-    setValue({});
-    setSelect([]);
-    setDate("1980");
-    setOpen(false);
-  };
-
-  const handleCalculation = (startDateInsurance, range) => {
-    handleValidateDate(startDateInsurance);
-
-    const result = selectItem.map((item) =>
-      selectData.map((datum) =>
-        item === datum.name ? datum.monthly_insurance_premium : 0
-      )
-    );
-    const resultFlat = result.flat();
-    const sum =
-      resultFlat.length > 0
-        ? resultFlat.reduce((acc, current) => acc + current)
-        : 0;
-
-    const costPolicy = Math.round((sum / 12) * range);
-
-    setSumPolicy(costPolicy);
-
-    const disabled = sum > 0 ? false : true;
-    setDisabled(disabled);
-  };
-
-  const handleValidateDate = (validateDate) => {
-    const expectedDate = new Date(validateDate);
-    const dateNow = new Date();
-
-    if (expectedDate.getFullYear() < dateNow.getFullYear()) {
-      alert(
-        "Год начала действия страхового полиса не может быть меньше года расчетного дня."
-      );
-      setDateStart(dateNow.toISOString());
-    } else if (
-      expectedDate.getMonth() <= dateNow.getMonth() &&
-      expectedDate.getDay() < dateNow.getDay()
-    ) {
-      alert(
-        "Дата начала действия страхового полиса не может быть меньше даты расчетного дня."
-      );
-      setDateStart(dateNow.toISOString());
-    } else {
-      setDateStart(expectedDate.toISOString());
-    }
-
-    const stop = new Date(expectedDate);
-    stop.setMonth(stop.getMonth() + parseInt(rangeInput));
-    setDateStop(stop);
-  };
-
-  const getInsurancePolicy = () => {
-    alert(`Вы оформили страховой полис:
-     ${selectItem}`);
-  };
+  const {
+    options,
+    columns,
+    select,
+    selectItem,
+    birthday,
+    dateStart,
+    dateStop,
+    open,
+    selectData,
+    rangeInput,
+    insurancePolicyCost,
+    disabled,
+    value,
+  } = store;
 
   return (
     <Grommet theme={grommet}>
@@ -138,9 +45,9 @@ function App() {
       <Box fill align="center" justify="center" pad="xxsmall" direction="row">
         <Form
           value={value}
-          onChange={(nextValue) => setValue(nextValue)}
-          onReset={handleReset}
-          onSubmit={({ value }) => handleSubmit(value)}
+          onChange={(nextValue) => store.setValue(nextValue)}
+          onReset={() => store.handleReset()}
+          onSubmit={({ value }) => store.handleSubmit(value)}
         >
           <FormField name="growth" htmlFor="growth" label="Рост" required>
             <TextInput name="growth" placeholder="Укажите рост в см." />
@@ -154,7 +61,7 @@ function App() {
               placeholder="Укажите пол"
               value={select}
               options={options}
-              onChange={({ option }) => setSelect(option)}
+              onChange={({ option }) => store.setSelect(option)}
             />
           </FormField>
 
@@ -166,9 +73,9 @@ function App() {
           >
             <DateInput
               name="birthday"
-              format="mm/dd/yyyy"
-              onChange={({ value }) => setDate(value)}
-              value={date}
+              format="dd/mm/yyyy"
+              onChange={({ value }) => store.setBirthDay(value)}
+              value={birthday}
               calendarProps={{ size: "small" }}
             />
           </FormField>
@@ -189,7 +96,7 @@ function App() {
                 data={selectData}
                 step={10}
                 select={selectItem}
-                onSelect={setSelectItem}
+                onSelect={(value) => store.setSelectItem(value)}
                 background={["white", "light-2"]}
                 sortable
               />
@@ -220,7 +127,7 @@ function App() {
           <Box align="center" pad="small" width="large">
             <RangeInput
               value={rangeInput}
-              onChange={handleChangeRangeInput}
+              onChange={(value) => store.handleChangeRangeInput(value)}
               step={1}
               min={12}
               max={24}
@@ -243,7 +150,9 @@ function App() {
               <DateInput
                 format="dd/mm/yyyy"
                 value={dateStart}
-                onChange={({ value }) => handleCalculation(value, rangeInput)}
+                onChange={({ value }) =>
+                  store.handleCalculation(value, rangeInput)
+                }
                 calendarProps={{ size: "small" }}
               />
             </Box>
@@ -265,12 +174,14 @@ function App() {
             align="center"
             justify="center"
           >
-            <Text tag="div">Полная страховая премия: {sumPolicy}</Text>
+            <Text tag="div">
+              Полная страховая премия: {insurancePolicyCost}
+            </Text>
             <Button
               type="button"
               primary
               label="Оформить полис"
-              onClick={getInsurancePolicy}
+              onClick={() => store.messageInsurancePolicy()}
               disabled={disabled}
             />
           </Box>
@@ -280,4 +191,4 @@ function App() {
   );
 }
 
-export default App;
+export default observer(App);
