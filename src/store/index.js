@@ -9,7 +9,7 @@ const amountFormatter = new Intl.NumberFormat("ru-RU", {
   minimumFractionDigits: 0,
 });
 
-const { log } = console;
+// const { log } = console;
 
 class Store {
   // Установка значения поля формы "Пол"
@@ -33,7 +33,7 @@ class Store {
   // Блокировка кнопки Оформить полис и ползунка интервала
   disabled = true;
   // Данные из формы
-  value = {};
+  value = { birthday: "", sex: "", growth: "", weight: "" };
   // Массив значений для поля формы "Пол"
   options = ["Мужской", "Женский"];
   // Настройка колонок таблицы
@@ -177,15 +177,17 @@ class Store {
    * @param {*} event
    */
   handleChangeRangeInput = (event) => {
-    const range = event.target.value;
-    this.setRangeInput(range);
-    this.handleCalculation(this.dateStart, range);
+    if (this.selectItem.length > 0) {
+      const range = event.target.value;
+      this.setRangeInput(range);
+      this.handleCalculation(this.dateStart, range);
+    }
   };
 
   /**
    * handleCalculation - рассчитывает стоимость полиса
-   * @param {*} startDateInsurance
-   * @param {*} range
+   * @param {string} startDateInsurance
+   * @param {number} range
    */
   handleCalculation = (startDateInsurance, range) => {
     this.handleValidateDate(startDateInsurance);
@@ -212,10 +214,9 @@ class Store {
   /**
    * handleValidateDate - проверяет выбираемую клиентом дату начала действия полиса.
    * Дата не должна быть меньше даты текущего дня.
-   * @param {*} validateDate
+   * @param {string} validateDate
    */
   handleValidateDate = (validateDate) => {
-    log("validateDate: ", validateDate);
     const expectedDate = new Date(validateDate);
     const dateNow = new Date();
 
@@ -232,7 +233,7 @@ class Store {
       alert(
         "Дата начала действия страхового полиса не может быть меньше даты расчетного дня."
       );
-      log("dateNow: ", dateNow.toISOString());
+
       this.setDateStart(dateNow.toISOString());
     } else {
       this.setDateStart(expectedDate.toISOString());
@@ -247,7 +248,7 @@ class Store {
    * handleReset - очистка данных
    */
   handleReset = () => {
-    this.setValue({});
+    this.setValue({ birthday: "", sex: "", growth: "", weight: "" });
     this.setSelect([]);
     this.setSelectItem([]);
     this.setBirthDay("1980");
@@ -265,9 +266,11 @@ class Store {
     const fullAgeInYears =
       new Date().getFullYear() - new Date(birthday).getFullYear();
 
-    let isAge = fullAgeInYears >= 18 && fullAgeInYears <= 65 ? true : false;
+    const isAge = fullAgeInYears >= 18 && fullAgeInYears <= 65 ? true : false;
 
-    const bodyMassIndex = Math.round((weight / growth ** 2) * 1000000) / 100;
+    const bodyMassIndex =
+      Math.round((parseFloat(weight) / parseFloat(growth) ** 2) * 1000000) /
+      100;
 
     if (bodyMassIndex >= 18.0 && bodyMassIndex < 25.0) {
       isBodyMassIndex = true;
