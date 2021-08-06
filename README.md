@@ -31,3 +31,10 @@ title
 end title
 
 ```
+
+## Быстрый старт
+
+- Клонируйте репозиторий: git clone
+- Перейдите в папку с проектом: cd insurance-calculator
+- Установите зависимости: yarn install или npm install
+- Запустите проект: yarn start или npm start

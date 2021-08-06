@@ -1,4 +1,4 @@
-import { action, makeAutoObservable, makeObservable, observable } from "mobx";
+import { action, makeAutoObservable, observable } from "mobx";
 import React from "react";
 
 import { Text } from "grommet";
@@ -19,7 +19,7 @@ class Store {
   // Установка начальной даты для календаря
   birthday = "1980";
   // Установка даты начала действия полиса
-  dateStart = "";
+  dateStart = new Date().toISOString();
   // Установка даты окончания действия полиса
   dateStop = "";
   // Отображение таблицы подобранных полисов
@@ -215,6 +215,7 @@ class Store {
    * @param {*} validateDate
    */
   handleValidateDate = (validateDate) => {
+    log("validateDate: ", validateDate);
     const expectedDate = new Date(validateDate);
     const dateNow = new Date();
 
@@ -223,13 +224,15 @@ class Store {
         "Год начала действия страхового полиса не может быть меньше года расчетного дня."
       );
       this.setDateStart(dateNow.toISOString());
-    } else if (
+    }
+    if (
       expectedDate.getMonth() <= dateNow.getMonth() &&
       expectedDate.getDay() < dateNow.getDay()
     ) {
       alert(
         "Дата начала действия страхового полиса не может быть меньше даты расчетного дня."
       );
+      log("dateNow: ", dateNow.toISOString());
       this.setDateStart(dateNow.toISOString());
     } else {
       this.setDateStart(expectedDate.toISOString());
@@ -241,13 +244,15 @@ class Store {
   };
 
   /**
-   * handleReset - очищает форму
+   * handleReset - очистка данных
    */
   handleReset = () => {
     this.setValue({});
     this.setSelect([]);
-    this.setDate("1980");
+    this.setSelectItem([]);
+    this.setBirthDay("1980");
     this.setOpen(false);
+    this.setRangeInput(12);
   };
 
   /**
