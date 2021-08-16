@@ -143,6 +143,7 @@ class Store {
       handleCalculation: action,
       handleValidateDate: action,
       messageInsurancePolicy: action,
+      handleStopDate: action,
     });
   }
 
@@ -240,15 +241,19 @@ class Store {
       );
       this.setDateStart(dateNow.toISOString());
       this.handleStopDate(dateNow.toISOString());
-    }
-
-    if (expectedDateMonth < dateNowMonth && expectedDateFullYear <= dateNowFullYear) {
+    } else if (
+      expectedDateMonth < dateNowMonth &&
+      expectedDateFullYear <= dateNowFullYear
+    ) {
       alert(
         "Месяц даты начала действия страхового полиса не может быть меньше месяца даты расчетного дня."
       );
       this.setDateStart(dateNow.toISOString());
       this.handleStopDate(dateNow.toISOString());
-    } else if (expectedDateMonth === dateNowMonth  && expectedDateFullYear <= dateNowFullYear) {
+    } else if (
+      expectedDateMonth === dateNowMonth &&
+      expectedDateFullYear <= dateNowFullYear
+    ) {
       if (expectedDateDay < dateNowDay) {
         alert(
           "Дата начала действия страхового полиса не может быть меньше даты расчетного дня."
@@ -282,9 +287,13 @@ class Store {
     this.setValue({ birthday: "", sex: "", growth: "", weight: "" });
     this.setSelect([]);
     this.setSelectItem([]);
-    this.setBirthDay("1980");
+    this.setBirthDay("1980-01-01");
     this.setOpen(false);
     this.setRangeInput(12);
+    this.setInsurancePolicyCost(0);
+    this.setDisabled(true);
+    this.setDateStart(new Date().toISOString());
+    this.setDateStop("");
   };
 
   /**
