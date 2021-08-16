@@ -1,7 +1,15 @@
-import { action, makeAutoObservable, observable } from "mobx";
+import { action, makeAutoObservable, observable, configure } from "mobx";
 import React from "react";
 
 import { Text } from "grommet";
+
+// configure({
+// enforceActions: "always",
+// computedRequiresReaction: true,
+// reactionRequiresObservable: true,
+// observableRequiresReaction: true,
+// disableErrorBoundaries: true
+// })
 
 const amountFormatter = new Intl.NumberFormat("ru-RU", {
   style: "currency",
@@ -17,7 +25,7 @@ class Store {
   // Выбор строки в таблице с подобранными полисами
   selectItem = [];
   // Установка начальной даты для календаря
-  birthday = "1980";
+  birthday = "1980-01-01";
   // Установка даты начала действия полиса
   dateStart = new Date().toISOString();
   // Установка даты окончания действия полиса
@@ -213,33 +221,56 @@ class Store {
 
   /**
    * handleValidateDate - проверяет выбираемую клиентом дату начала действия полиса.
-   * Дата не должна быть меньше даты текущего дня.
+   * Дата начала действия полиса не должна быть меньше даты текущего дня.
    * @param {string} validateDate
    */
   handleValidateDate = (validateDate) => {
     const expectedDate = new Date(validateDate);
+    const expectedDateFullYear = expectedDate.getFullYear();
+    const expectedDateMonth = expectedDate.getMonth();
+    const expectedDateDay = expectedDate.getDate();
     const dateNow = new Date();
+    const dateNowFullYear = dateNow.getFullYear();
+    const dateNowMonth = dateNow.getMonth();
+    const dateNowDay = dateNow.getDate();
 
-    if (expectedDate.getFullYear() < dateNow.getFullYear()) {
+    if (expectedDateFullYear < dateNowFullYear) {
       alert(
         "Год начала действия страхового полиса не может быть меньше года расчетного дня."
       );
       this.setDateStart(dateNow.toISOString());
+      this.handleStopDate(dateNow.toISOString());
     }
-    if (
-      expectedDate.getMonth() <= dateNow.getMonth() &&
-      expectedDate.getDay() < dateNow.getDay()
-    ) {
-      alert(
-        "Дата начала действия страхового полиса не может быть меньше даты расчетного дня."
-      );
 
+    if (expectedDateMonth < dateNowMonth && expectedDateFullYear <= dateNowFullYear) {
+      alert(
+        "Месяц даты начала действия страхового полиса не может быть меньше месяца даты расчетного дня."
+      );
       this.setDateStart(dateNow.toISOString());
+      this.handleStopDate(dateNow.toISOString());
+    } else if (expectedDateMonth === dateNowMonth  && expectedDateFullYear <= dateNowFullYear) {
+      if (expectedDateDay < dateNowDay) {
+        alert(
+          "Дата начала действия страхового полиса не может быть меньше даты расчетного дня."
+        );
+        this.setDateStart(dateNow.toISOString());
+        this.handleStopDate(dateNow.toISOString());
+      } else {
+        this.setDateStart(expectedDate.toISOString());
+        this.handleStopDate(expectedDate.toISOString());
+      }
     } else {
       this.setDateStart(expectedDate.toISOString());
+      this.handleStopDate(expectedDate.toISOString());
     }
+  };
 
-    const stop = new Date(expectedDate);
+  /**
+   *  handleStopDate - Обработчик установки даты окончания страхового периода.
+   * @param {string} stopDate
+   */
+  handleStopDate = (stopDate) => {
+    const stop = new Date(stopDate);
     stop.setMonth(stop.getMonth() + parseInt(this.rangeInput));
     this.setDateStop(stop);
   };
@@ -258,7 +289,7 @@ class Store {
 
   /**
    * handleSubmit - обработчик формы
-   * @param {*} param0
+   * @param {Object} param0
    */
   handleSubmit = ({ birthday, sex, growth, weight }) => {
     let isBodyMassIndex = false;
