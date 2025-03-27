@@ -73,7 +73,7 @@ function App() {
           >
             <DateInput
               name="birthday"
-              format="dd/mm/yyyy"
+              format="dd.mm.yyyy"
               onChange={({ value }) => store.setBirthDay(value)}
               value={birthday}
               calendarProps={{ size: "small" }}
@@ -118,8 +118,8 @@ function App() {
                       <Box key={datum.id} alignSelf="start">
                         {datum.risks}
                       </Box>
-                    ) : null
-                  )
+                    ) : null,
+                  ),
                 )}
               </Box>
             )}
@@ -148,7 +148,7 @@ function App() {
             <Box width="medium" gap="" direction="row">
               <Text tag="div">Дата начала</Text>
               <DateInput
-                format="dd/mm/yyyy"
+                format="dd.mm.yyyy"
                 value={dateStart}
                 onChange={({ value }) =>
                   store.handleCalculation(value, rangeInput)
@@ -159,9 +159,9 @@ function App() {
             <Box width="medium" gap="medium" direction="row">
               <Text tag="div">Дата окончания</Text>
               <DateInput
-                format="dd/mm/yyyy"
+                format="dd.mm.yyyy"
                 value={dateStop}
-                onChange={() => {}}
+                onChange={() => { }}
                 calendarProps={{ size: "small" }}
                 disabled
               />

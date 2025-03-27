@@ -203,8 +203,8 @@ class Store {
 
     const result = this.selectItem.map((item) =>
       this.selectData.map((datum) =>
-        item === datum.name ? datum.monthly_insurance_premium : 0
-      )
+        item === datum.name ? datum.monthly_insurance_premium : 0,
+      ),
     );
     const resultFlat = result.flat();
     const sum =
@@ -237,7 +237,7 @@ class Store {
 
     if (expectedDateFullYear < dateNowFullYear) {
       alert(
-        "Год начала действия страхового полиса не может быть меньше года расчетного дня."
+        "Год начала действия страхового полиса не может быть меньше года расчетного дня.",
       );
       this.setDateStart(dateNow.toISOString());
       this.handleStopDate(dateNow.toISOString());
@@ -246,7 +246,7 @@ class Store {
       expectedDateFullYear <= dateNowFullYear
     ) {
       alert(
-        "Месяц даты начала действия страхового полиса не может быть меньше месяца даты расчетного дня."
+        "Месяц даты начала действия страхового полиса не может быть меньше месяца даты расчетного дня.",
       );
       this.setDateStart(dateNow.toISOString());
       this.handleStopDate(dateNow.toISOString());
@@ -256,7 +256,7 @@ class Store {
     ) {
       if (expectedDateDay < dateNowDay) {
         alert(
-          "Дата начала действия страхового полиса не может быть меньше даты расчетного дня."
+          "Дата начала действия страхового полиса не может быть меньше даты расчетного дня.",
         );
         this.setDateStart(dateNow.toISOString());
         this.handleStopDate(dateNow.toISOString());
@@ -321,7 +321,7 @@ class Store {
     const result = this.DATA.filter(
       (item) =>
         item.min_body_mass_idx <= bodyMassIndex &&
-        item.max_body_mass_idx >= bodyMassIndex
+        item.max_body_mass_idx >= bodyMassIndex,
     );
 
     this.setSelectData(result);
