@@ -300,7 +300,7 @@ class Store {
    * handleSubmit - обработчик формы
    * @param {Object} param0
    */
-  handleSubmit = ({ birthday, sex, growth, weight }) => {
+  handleSubmit = ({ birthday, growth, weight }) => {
     let isBodyMassIndex = false;
 
     const fullAgeInYears =
@@ -342,4 +342,5 @@ class Store {
   };
 }
 
-export default new Store();
+const store = new Store();
+export default store;
